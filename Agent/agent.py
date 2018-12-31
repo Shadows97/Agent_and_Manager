@@ -20,7 +20,7 @@ while c > 10:
     print(sendInfo)
     msg = json.dumps(sendInfo).encode()
     connexion.send(msg)
-    time.sleep(5)
+    time.sleep(60)
 
 
 
