@@ -20,7 +20,7 @@ class Info() :
         self.diskInfo()
         #self.getInfo()
 
-    def bytes2human(n):
+    def bytes2human(self,n):
         symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
         prefix = {}
         for i, s in enumerate(symbols):
@@ -37,7 +37,7 @@ class Info() :
         print(c.load)
         print(c.load_stats)
         self.sendInfo['cpuNumber'] = psutil.cpu_count(logical=False)
-        self.sendInfo['cpuFreqCurrent'] = psutil.cpu_freq().current
+        self.sendInfo['cpuFreqCurrent'] = round(psutil.cpu_freq().current,1)
         self.sendInfo['cpuFreqMin'] = psutil.cpu_freq().min
         self.sendInfo['cpuFreqMax'] = psutil.cpu_freq().max
 
@@ -75,6 +75,7 @@ class Info() :
                 dev = path
             break
         mem = NonvolatileMemory(monitoring_latency=1, device=dev)
+        print("simple === "+self.bytes2human(mem.total))
         self.sendInfo['total_size'] = mem.total
         self.sendInfo['size_used'] = mem.used
         self.sendInfo['size_free'] = mem.total - mem.used

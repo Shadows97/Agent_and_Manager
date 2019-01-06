@@ -8,14 +8,11 @@ from db_config.sql_constant import Constant
 from db_config.config import ConfigDb
 
 
-hote =''
-port = 7000
+hote ='192.168.43.55'
+port = 6061
 connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 connection.bind((hote,port))
 connection.listen(5)
-
-
-
 
 print("Le serveur ecoute à présent sur le port: {}".format(port))
 
@@ -101,7 +98,7 @@ while server_start:
 
             else:
                 print("check false")
-                cur.execute(Constant.query_insert_hote, (data[0], data[1], data[2],))
+                cur.execute(Constant.query_insert_hote, (data[0], data[1], data[2],True))
                 conn.commit()
                 cur.execute(Constant.query_check_hote, (data[2],))
                 id_hote = cur.fetchone()[0]

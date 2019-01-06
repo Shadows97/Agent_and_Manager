@@ -4,8 +4,8 @@ import json
 from Agent.info import Info
 
 
-hote = "localhost"
-port = 7000
+hote = "192.168.43.55"
+port = 6061
 
 connexion = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 connexion.connect((hote,port))
@@ -20,7 +20,7 @@ while c > 10:
     print(sendInfo)
     msg = json.dumps(sendInfo).encode()
     connexion.send(msg)
-    time.sleep(60)
+    time.sleep(1)
 
 
 
