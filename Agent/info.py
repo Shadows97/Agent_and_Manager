@@ -8,6 +8,9 @@ import json
 
 class Info() :
     sendInfo = {}
+    percent = None
+    alert = {}
+
 
 
     def __init__(self):
@@ -18,7 +21,9 @@ class Info() :
         self.ramInfo()
         self.debitInfo()
         self.diskInfo()
-        #self.getInfo()
+        self.cpuAlert()
+        self.diskAlert()
+        self.ramAlert()
 
     def bytes2human(self,n):
         symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -84,3 +89,37 @@ class Info() :
     def getInfo(self):
         top =self.sendInfo
         return top
+
+    def cpuAlert(self):
+        percent = (round(psutil.cpu_freq().current, 1)*100)/psutil.cpu_freq().max
+        if percent >= 90 :
+            self.alert['messageCpu'] = "L'utilisation du cpu à atteint {} %".format(percent)
+
+
+    def ramAlert(self):
+        d = VirtualMemory(monitoring_latency=1)
+        percent = d.used_percent
+        if percent >= 90 :
+            self.alert['messageRam'] = "L'utilisation de la memoir RAM à atteint {} %".format(percent)
+
+    def diskAlert(self):
+        disks = psutil.disk_partitions()
+        dev = ""
+        for disk in disks:
+            path = disk.device
+
+            if "sda" in path:
+                dev = path
+            break
+        mem = NonvolatileMemory(monitoring_latency=1, device=dev)
+        print("simple === " + self.bytes2human(mem.total))
+        total = mem.total
+        used = mem.used
+        percent = (used*100)/total
+        if percent >= 90 :
+            self.alert['messageDisk'] = "L'utilisation du disque dur à atteint {} %".format(percent)
+
+    def getAlert(self):
+        al = self.alert
+        return al
+
