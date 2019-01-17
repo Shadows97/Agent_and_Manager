@@ -7,12 +7,19 @@ import psycopg2 as psycopg2
 from db_config.sql_constant import Constant
 from db_config.config import ConfigDb
 
+def create_socket(TCP_PORT):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind(('127.0.0.1', TCP_PORT))
+    server_socket.listen(5)
 
+    return server_socket
+
+read_list = []
 hote =''
 port = 9094
-connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-connection.bind((hote,port,hote,9096))
-connection.listen(5)
+for TCP_PORT in range(8000,8100):
+        read_list.append(create_socket(TCP_PORT))
 
 print("Le serveur ecoute à présent sur le port: {}".format(port))
 
@@ -22,7 +29,7 @@ donnees = {}
 clients_connectes =[]
 client_info =[]
 while server_start:
-    connexion_demandees, wlist, xlist = select.select([connection],[],[],0.05)
+    connexion_demandees, wlist, xlist = select.select(read_list,[],[],0.05)
 
     for conected in connexion_demandees:
         connection_client, infos = conected.accept()

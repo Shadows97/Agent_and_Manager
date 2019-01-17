@@ -10,7 +10,7 @@ class Alert():
     @classmethod
     def sendAlert (cls):
         hote = "localhost"
-        port = 9096
+        port = 9094
 
         connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexion.connect((hote, port))
@@ -23,7 +23,7 @@ class Alert():
         if sendAlert is not None:
             msg = json.dumps(sendAlert).encode()
             connexion.send(msg)
-        time.sleep(1)
+
 
 
         connexion.close()
