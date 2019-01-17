@@ -29,6 +29,9 @@ class Alert():
         connexion.close()
 
 
+if __name__ == '__main__':
+    Alert().sendAlert()
+
 
 
 

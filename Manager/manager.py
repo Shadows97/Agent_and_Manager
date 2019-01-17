@@ -17,8 +17,8 @@ def create_socket(TCP_PORT):
 
 read_list = []
 hote =''
-port = 9094
-for TCP_PORT in range(8000,8100):
+port = [9094,9096]
+for TCP_PORT in port:
         read_list.append(create_socket(TCP_PORT))
 
 print("Le serveur ecoute à présent sur le port: {}".format(port))

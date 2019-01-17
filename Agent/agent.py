@@ -15,14 +15,12 @@ print("Connexion établie avec le serveur sur le port: {}".format(port))
 
 c = 30
 while c > 10:
-
-
+    Alert.sendAlert()
     info =Info()
     sendInfo = info.getInfo()
     print(info.getInfo())
     msg = json.dumps(sendInfo).encode()
     connexion.send(msg)
-    Alert.sendAlert()
     time.sleep(1)
 
 
