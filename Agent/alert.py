@@ -17,14 +17,12 @@ class Alert():
 
         print("Connexion établie avec le serveur sur le port: {}".format(port))
 
-        info = Info()
-        sendAlert = info.getAlert()
-        print(info.getAlert())
-        if sendAlert is not None:
+        while True:
+            info = Info()
+            sendAlert = info.getAlert()
+            print(info.getAlert())
             msg = json.dumps(sendAlert).encode()
             connexion.send(msg)
-
-
 
         connexion.close()
 
