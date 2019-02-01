@@ -3,6 +3,7 @@ from pyspectator.memory import VirtualMemory, NonvolatileMemory
 from pyspectator.network import NetworkInterface
 
 from pyspectator.processor import Cpu
+from Constant.AlertConstant import AlertConstant
 import json
 
 
@@ -93,14 +94,14 @@ class Info() :
     def cpuAlert(self):
         percent = (round(psutil.cpu_freq().current, 1)*100)/psutil.cpu_freq().max
         if percent >= 90 :
-            self.alert['messageCpu'] = "L'utilisation du cpu à atteint {} %".format(percent)
+            self.alert[AlertConstant.CPU_TITRE] = "L'utilisation du cpu à atteint {} %".format(percent)
 
 
     def ramAlert(self):
         d = VirtualMemory(monitoring_latency=1)
         percent = d.used_percent
         if percent >= 90 :
-            self.alert['messageRam'] = "L'utilisation de la memoir RAM à atteint {} %".format(percent)
+            self.alert[AlertConstant.RAM_TITRE] = "L'utilisation de la memoir RAM à atteint {} %".format(percent)
 
     def diskAlert(self):
         disks = psutil.disk_partitions()
@@ -117,9 +118,13 @@ class Info() :
         used = mem.used
         percent = (used*100)/total
         if percent >= 90 :
-            self.alert['messageDisk'] = "L'utilisation du disque dur à atteint {} %".format(percent)
+            self.alert[AlertConstant.DISK_TITRE] = "L'utilisation du disque dur à atteint {} %".format(percent)
 
     def getAlert(self):
+        liste = psutil.net_if_addrs()
+        t = NetworkInterface(monitoring_latency=1)
+        key = list(liste.keys())
+        self.alert[AlertConstant.EQUIPEMENT_MAC] = liste.get(key.__getitem__(1))[2].address
         al = self.alert
         return al
 

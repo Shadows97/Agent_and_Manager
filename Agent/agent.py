@@ -1,31 +1,25 @@
 import socket
 import time
 import json
-from Agent.info import Info
-from Agent.alert import Alert
+from Agent.sendInfo import SendInfo
+from Agent.sendAlert import SendAlert
 
 
-hote = "localhost"
-port = 9094
+class Agent ():
 
-connexion = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-connexion.connect((hote,port))
+    @classmethod
+    def run (cls):
 
-print("Connexion établie avec le serveur sur le port: {}".format(port))
+       while True:
+           SendAlert.sendAlert()
+           time.sleep(2)
+           SendInfo.sendInfo()
+           time.sleep(5)
 
-c = 30
-while c > 10:
-    Alert.sendAlert()
-    info =Info()
-    sendInfo = info.getInfo()
-    print(info.getInfo())
-    msg = json.dumps(sendInfo).encode()
-    connexion.send(msg)
-    time.sleep(1)
+if __name__ == '__main__':
+    Agent.run()
 
 
-
-connexion.close()
 
 
 

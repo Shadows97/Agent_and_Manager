@@ -3,32 +3,28 @@ import time
 import json
 from Agent.info import Info
 
-class Alert():
+class SendInfo():
 
 
 
     @classmethod
-    def sendAlert (cls):
+    def sendInfo(cls):
         hote = "localhost"
         port = 9094
 
         connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexion.connect((hote, port))
-
         print("Connexion établie avec le serveur sur le port: {}".format(port))
 
-        while True:
-            info = Info()
-            sendAlert = info.getAlert()
-            print(info.getAlert())
-            msg = json.dumps(sendAlert).encode()
-            connexion.send(msg)
+        info = Info()
+        sendInfo = info.getInfo()
+        print(info.getInfo())
+        msg = json.dumps(sendInfo).encode()
+        connexion.send(msg)
 
         connexion.close()
 
 
-if __name__ == '__main__':
-    Alert().sendAlert()
 
 
 

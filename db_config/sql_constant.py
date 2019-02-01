@@ -15,3 +15,7 @@ class Constant():
     query_delete_diskInfo = """ DELETE FROM "Dashboard_disk_info" WHERE equipement_id = %s;"""
     query_delete_debitInfo = """ DELETE FROM "Dashboard_interface_data_info" WHERE equipement_id = %s;"""
     query_update_ip = """ UPDATE "Dashboard_equipement" SET adresse_ip = %s WHERE adresse_mac = %s;  """
+
+    INSERT_ALERT_QUERY =  """INSERT INTO "Dashboard_alert" (titre, message,status, equipement_id) VALUES (%s,%s,%s,%s);"""
+    CHECK_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" WHERE message = %s AND status = %s;"""
+    CHECK_ALL_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" ;"""
