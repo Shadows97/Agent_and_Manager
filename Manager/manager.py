@@ -8,7 +8,7 @@ import psycopg2 as psycopg2
 from db_config.sql_constant import Constant
 from db_config.config import ConfigDb
 from Manager.utils import Utils
-from Constant.AlertConstant import AlertConstant
+from Manager.AlertConstant import AlertConstant
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def create_socket(TCP_PORT):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('127.0.0.1', TCP_PORT))
+    server_socket.bind(('192.168.150.95', TCP_PORT))
     server_socket.listen(5)
 
     return server_socket
@@ -72,7 +72,7 @@ while server_start:
                     keys += (donne,)
                     data += (donnees[donne],)
                 print("data == " + str(data))
-                if keys.__contains__(AlertConstant.RAM_TITRE) or keys.__contains__(AlertConstant.DISK_TITRE) or keys.__contains__(AlertConstant.CPU_TITRE):
+                if keys.__contains__(AlertConstant.RAM_TITRE) or keys.__contains__(AlertConstant.DISK_TITRE) or keys.__contains__(AlertConstant.CPU_TITRE) or keys.__contains__(AlertConstant.EQUIPEMENT_MAC) :
                     print("true")
                     for key in keys:
                         print("Titre {}".format(key))
@@ -82,9 +82,10 @@ while server_start:
                         if response :
                             id_hote = response[0]
                             if key != AlertConstant.EQUIPEMENT_MAC:
-                                cur.execute(Constant.CHECK_ALL_ALERT_QUERY, ())
-
-                                if cur.rowcount == 0:
+                                cur.execute(Constant.CHECK_ALL_ALERT_QUERY, (donnees[key],))
+                                response = cur.fetchone()
+                                print("responses {}".format(response))
+                                if response == None:
                                     cur.execute(Constant.INSERT_ALERT_QUERY, (key, donnees[key], False, id_hote))
                                     conn.commit()
                                 else:

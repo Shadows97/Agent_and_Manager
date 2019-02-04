@@ -66,6 +66,7 @@ class Info() :
 
     def connectionInfo(self):
         liste = psutil.net_if_addrs()
+        print(liste)
         t = NetworkInterface(monitoring_latency=1)
         key = list(liste.keys())
         self.sendInfo['ip'] = t.ip_address  # liste.get(key.__getitem__(1))[0].address

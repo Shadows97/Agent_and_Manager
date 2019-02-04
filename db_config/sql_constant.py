@@ -18,4 +18,4 @@ class Constant():
 
     INSERT_ALERT_QUERY =  """INSERT INTO "Dashboard_alert" (titre, message,status, equipement_id) VALUES (%s,%s,%s,%s);"""
     CHECK_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" WHERE message = %s AND status = %s;"""
-    CHECK_ALL_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" ;"""
+    CHECK_ALL_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" WHERE message = %s ;"""
