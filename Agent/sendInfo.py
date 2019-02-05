@@ -9,7 +9,7 @@ class SendInfo():
 
     @classmethod
     def sendInfo(cls):
-        hote = "192.168.150.95"
+        hote = "192.168.43.139 "
         port = 9096
 
         connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
