@@ -42,7 +42,7 @@ class Utils ():
 
     @classmethod
     def managerInsertion(cls,cur,conn,data):
-        cur.execute(Constant.query_insert_hote, (data[0], data[1], data[2], True, data[17]))
+        cur.execute(Constant.query_insert_hote, (data[0], data[1], data[2], True, data[17], data[18]))
         conn.commit()
         cur.execute(Constant.query_check_hote, (data[2],))
         id_hote = cur.fetchone()[0]

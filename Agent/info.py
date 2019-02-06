@@ -92,7 +92,8 @@ class Info() :
         self.sendInfo['size_used'] = mem.used
         self.sendInfo['size_free'] = mem.total - mem.used
         self.sendInfo['os'] = ' '.join(platform.linux_distribution())
-        #self.sendInfo['pro'] = Computer.processor.__dict__
+        computer = Computer()
+        self.sendInfo['pros'] = computer.processor.name
 
 
     def getInfo(self):
