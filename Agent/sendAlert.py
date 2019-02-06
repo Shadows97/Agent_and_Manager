@@ -9,7 +9,7 @@ class SendAlert():
 
     @classmethod
     def sendAlert (cls):
-        hote = "192.168.43.139 "
+        hote = 'localhost'
         port = 9094
 
         connexion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,6 +1,7 @@
 import psutil
 from pyspectator.memory import VirtualMemory, NonvolatileMemory
 from pyspectator.network import NetworkInterface
+from pyspectator.computer import Computer
 
 from pyspectator.processor import Cpu
 from Constant.AlertConstant import AlertConstant
@@ -86,7 +87,6 @@ class Info() :
         self.sendInfo['total_size'] = mem.total
         self.sendInfo['size_used'] = mem.used
         self.sendInfo['size_free'] = mem.total - mem.used
-
 
     def getInfo(self):
         top =self.sendInfo

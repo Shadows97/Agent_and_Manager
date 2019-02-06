@@ -16,13 +16,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def create_socket(TCP_PORT):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('192.168.43.139 ', TCP_PORT))
+    server_socket.bind(('127.0.0.1', TCP_PORT))
     server_socket.listen(5)
 
     return server_socket
 
 read_list = []
-hote =''
+hote ='localhost'
 port = [9094,9096]
 for TCP_PORT in port:
         read_list.append(create_socket(TCP_PORT))
