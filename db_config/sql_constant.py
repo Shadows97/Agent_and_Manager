@@ -1,6 +1,6 @@
 class Constant():
     SQL = """INSERT INTO "Dashboard_equipement" (adresse_ip) VALUES (%s);"""
-    query_insert_hote = """INSERT INTO "Dashboard_equipement" (nom,adresse_ip,adresse_mac,etat) VALUES (%s,%s,%s,%s);"""
+    query_insert_hote = """INSERT INTO "Dashboard_equipement" (nom,adresse_ip,adresse_mac,etat,data,pros) VALUES (%s,%s,%s,%s,%s,%s);"""
     query_check_hote = """SELECT * FROM "Dashboard_equipement" WHERE adresse_mac =%s;"""
     query_insert_cpuInfo = """INSERT INTO "Dashboard_cpu_info" (cpu_number,cpu_current_freq,cpu_min_freq,cpu_max_freq,equipement_id) VALUES (%s, %s,%s, %s,%s);"""
     query_insert_ramInfo = """INSERT INTO "Dashboard_ram_info" (ram_total,ram_available,ram_percent,ram_free,ram_used,equipement_id) VALUES (%s,%s,%s,%s,%s,%s);"""
@@ -15,3 +15,7 @@ class Constant():
     query_delete_diskInfo = """ DELETE FROM "Dashboard_disk_info" WHERE equipement_id = %s;"""
     query_delete_debitInfo = """ DELETE FROM "Dashboard_interface_data_info" WHERE equipement_id = %s;"""
     query_update_ip = """ UPDATE "Dashboard_equipement" SET adresse_ip = %s WHERE adresse_mac = %s;  """
+
+    INSERT_ALERT_QUERY =  """INSERT INTO "Dashboard_alert" (titre, message,status, equipement_id) VALUES (%s,%s,%s,%s);"""
+    CHECK_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" WHERE message = %s AND status = %s;"""
+    CHECK_ALL_ALERT_QUERY = """SELECT * FROM "Dashboard_alert" WHERE message = %s ;"""

@@ -1,3 +1,4 @@
+import os
 import socket
 import select
 import json
@@ -6,13 +7,25 @@ import json
 import psycopg2 as psycopg2
 from db_config.sql_constant import Constant
 from db_config.config import ConfigDb
+from Manager.utils import Utils
+from Manager.AlertConstant import AlertConstant
 
 
-hote ='192.168.43.55'
-port = 6061
-connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-connection.bind((hote,port))
-connection.listen(5)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def create_socket(TCP_PORT):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind(('127.0.0.1', TCP_PORT))
+    server_socket.listen(5)
+
+    return server_socket
+
+read_list = []
+hote ='localhost'
+port = [9094,9096]
+for TCP_PORT in port:
+        read_list.append(create_socket(TCP_PORT))
 
 print("Le serveur ecoute à présent sur le port: {}".format(port))
 
@@ -22,14 +35,12 @@ donnees = {}
 clients_connectes =[]
 client_info =[]
 while server_start:
-    connexion_demandees, wlist, xlist = select.select([connection],[],[],0.05)
+    connexion_demandees, wlist, xlist = select.select(read_list,[],[],0.05)
 
     for conected in connexion_demandees:
         connection_client, infos = conected.accept()
 
         clients_connectes.append(connection_client)
-
-
 
     client_a_lire = []
 
@@ -41,79 +52,65 @@ while server_start:
         pass
     else:
         for client in client_a_lire:
-            msg = client.recv(5000)
-            msg = msg.decode()
-            #msg1 = json.dumps(msg)
-            donnees = json.loads(msg)
-            print("data ==>"+str(donnees))
-            data =()
-            for donne in donnees:
-              print(donne)
-              data +=(donnees[donne],)
-            print("data == "+ str(data))
-            conn =None
-            filename ="/home/shadows/PycharmProjects/Agent_and_Manager/db_config/dbConfig.ini"
-            conn = ConfigDb().connection(filename,"postgresql")
+            conn = None
+            # filename = "/home/charbel/PycharmProjects/agent_and_manager/db_config/dbConfig.ini"
+            filename = os.path.join(BASE_DIR, 'db_config/dbConfig.ini')
+            conn = ConfigDb().connection(filename, "postgresql")
             # create a cursor
             cur = conn.cursor()
-            cur.execute(Constant.query_check_hote, (data[2],))
-            response = cur.fetchone()
-            if response:
-                print("check true")
-                id_hote = response[0]
-                print("id === "+str(id_hote))
-                cur.execute(Constant.query_update_ip,(data[1],data[2]))
-                conn.commit()
-                cur.execute(Constant.query_count_cpuInfo, (id_hote,))
-                print(cur.rowcount)
-                if cur.rowcount == 10:
-                    cur.execute(Constant.query_delete_cpuInfo, (id_hote,))
-                    conn.commit()
-                cur.execute(Constant.query_count_ramInfo, (id_hote,))
-                print(cur.rowcount)
-                if cur.rowcount == 10:
-                    cur.execute(Constant.query_delete_ramInfo, (id_hote,))
-                    conn.commit()
-                cur.execute(Constant.query_count_debitInfo, (id_hote,))
-                if cur.rowcount == 10:
-                    cur.execute(Constant.query_delete_debitInfo, (id_hote,))
-                    conn.commit()
-                cur.execute(Constant.query_count_diskInfo, (id_hote,))
-                if cur.rowcount == 10:
-                    cur.execute(Constant.query_delete_diskInfo, (id_hote,))
-                    conn.commit()
-                cur.execute(Constant.query_insert_cpuInfo, (data[3], data[4], data[5], data[6], id_hote,))
-                conn.commit()
+            msg = client.recv(5000)
+            if msg != b'' :
+                print(msg)
+                msg = msg.decode()
 
-                cur.execute(Constant.query_insert_ramInfo, (data[7], data[8], data[9], data[10], data[11], id_hote,))
-                conn.commit()
-
-                cur.execute(Constant.query_insert_debitInfo, (data[12], data[13], id_hote))
-                conn.commit()
-
-                cur.execute(Constant.query_insert_diskInfo, (data[14], data[15], data[16], id_hote))
-                conn.commit()
-
+                donnees = json.loads(msg)
+                print("data ==>" + str(donnees))
+                keys = ()
+                data = ()
+                for donne in donnees:
+                    print(donne)
+                    keys += (donne,)
+                    data += (donnees[donne],)
+                print("data == " + str(data))
+                if keys.__contains__(AlertConstant.RAM_TITRE) or keys.__contains__(AlertConstant.DISK_TITRE) or keys.__contains__(AlertConstant.CPU_TITRE) or keys.__contains__(AlertConstant.EQUIPEMENT_MAC) :
+                    print("true")
+                    for key in keys:
+                        print("Titre {}".format(key))
+                        print("Message {}".format(donnees[key]))
+                        cur.execute(Constant.query_check_hote, (donnees[AlertConstant.EQUIPEMENT_MAC],))
+                        response = cur.fetchone()
+                        if response :
+                            id_hote = response[0]
+                            if key != AlertConstant.EQUIPEMENT_MAC:
+                                cur.execute(Constant.CHECK_ALL_ALERT_QUERY, (donnees[key],))
+                                response = cur.fetchone()
+                                print("responses {}".format(response))
+                                if response == None:
+                                    cur.execute(Constant.INSERT_ALERT_QUERY, (key, donnees[key], False, id_hote))
+                                    conn.commit()
+                                else:
+                                    cur.execute(Constant.CHECK_ALERT_QUERY, (donnees[key], True))
+                                    response = cur.fetchone()
+                                    if response:
+                                        cur.execute(Constant.INSERT_ALERT_QUERY, (key, donnees[key], False, id_hote))
+                                        conn.commit()
 
 
-            else:
-                print("check false")
-                cur.execute(Constant.query_insert_hote, (data[0], data[1], data[2],True))
-                conn.commit()
-                cur.execute(Constant.query_check_hote, (data[2],))
-                id_hote = cur.fetchone()[0]
-                cur.execute(Constant.query_insert_cpuInfo, (data[3], data[4], data[5], data[6], id_hote,))
-                conn.commit()
-                cur.execute(Constant.query_insert_ramInfo, (data[7], data[8], data[9], data[10], data[11], id_hote,))
-                conn.commit()
-                cur.execute(Constant.query_insert_debitInfo, (data[12], data[13], id_hote,))
-                conn.commit()
-                cur.execute(Constant.query_insert_diskInfo, (data[14], data[15], data[16], id_hote,))
-                conn.commit()
+                else:
+                    cur.execute(Constant.query_check_hote, (data[2],))
+                    response = cur.fetchone()
+                    if response:
+                        print("check true")
+                        id_hote = response[0]
+                        print("id === " + str(id_hote))
+                        Utils.managerUpdate(cur, conn, data, id_hote)
+                    else:
+                        print("check false")
+                        Utils.managerInsertion(cur, conn, data)
+                    cur.close()
 
-            cur.close()
+                    ConfigDb().disconnect(conn)
 
-            ConfigDb().disconnect(conn)
 
 
 

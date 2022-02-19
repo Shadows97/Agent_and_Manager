@@ -1,13 +1,21 @@
 import psutil
 from pyspectator.memory import VirtualMemory, NonvolatileMemory
 from pyspectator.network import NetworkInterface
+from pyspectator.computer import Computer
+
 
 from pyspectator.processor import Cpu
+from pyspectator.computer import Computer
+import platform
+from Constant.AlertConstant import AlertConstant
 import json
 
 
 class Info() :
     sendInfo = {}
+    percent = None
+    alert = {}
+
 
 
     def __init__(self):
@@ -18,7 +26,9 @@ class Info() :
         self.ramInfo()
         self.debitInfo()
         self.diskInfo()
-        #self.getInfo()
+        self.cpuAlert()
+        self.diskAlert()
+        self.ramAlert()
 
     def bytes2human(self,n):
         symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -49,6 +59,7 @@ class Info() :
         self.sendInfo['ramFree'] = d.total - d.used  # psutil.virtual_memory().free
         self.sendInfo['ramUsed'] = d.used  # psutil.virtual_memory().used
 
+
     def debitInfo(self):
         debit = NetworkInterface(monitoring_latency=1)
         self.sendInfo['byte_send'] = debit.bytes_sent
@@ -60,6 +71,7 @@ class Info() :
 
     def connectionInfo(self):
         liste = psutil.net_if_addrs()
+        print(liste)
         t = NetworkInterface(monitoring_latency=1)
         key = list(liste.keys())
         self.sendInfo['ip'] = t.ip_address  # liste.get(key.__getitem__(1))[0].address
@@ -79,8 +91,49 @@ class Info() :
         self.sendInfo['total_size'] = mem.total
         self.sendInfo['size_used'] = mem.used
         self.sendInfo['size_free'] = mem.total - mem.used
+        self.sendInfo['os'] = ' '.join(platform.linux_distribution())
+        computer = Computer()
+        self.sendInfo['pros'] = computer.processor.name
 
 
     def getInfo(self):
         top =self.sendInfo
         return top
+
+    def cpuAlert(self):
+        percent = (round(psutil.cpu_freq().current, 1)*100)/psutil.cpu_freq().max
+        if percent >= 90 :
+            self.alert[AlertConstant.CPU_TITRE] = "L'utilisation du cpu à atteint {} %".format(int(percent))
+
+
+    def ramAlert(self):
+        d = VirtualMemory(monitoring_latency=1)
+        percent = d.used_percent
+        if percent >= 90 :
+            self.alert[AlertConstant.RAM_TITRE] = "L'utilisation de la memoir RAM à atteint {} %".format(int(percent))
+
+    def diskAlert(self):
+        disks = psutil.disk_partitions()
+        dev = ""
+        for disk in disks:
+            path = disk.device
+
+            if "sda" in path:
+                dev = path
+            break
+        mem = NonvolatileMemory(monitoring_latency=1, device=dev)
+        print("simple === " + self.bytes2human(mem.total))
+        total = mem.total
+        used = mem.used
+        percent = (used*100)/total
+        if percent >= 90 :
+            self.alert[AlertConstant.DISK_TITRE] = "L'utilisation du disque dur à atteint {} %".format(int(percent))
+
+    def getAlert(self):
+        liste = psutil.net_if_addrs()
+        t = NetworkInterface(monitoring_latency=1)
+        key = list(liste.keys())
+        self.alert[AlertConstant.EQUIPEMENT_MAC] = liste.get(key.__getitem__(1))[2].address
+        al = self.alert
+        return al
+
